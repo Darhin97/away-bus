@@ -13,6 +13,8 @@ venv/
 env/
 .venv/
 
+CLAUDE.md
+
 # Virtualenv metadata
 pip-log.txt
 pip-delete-this-directory.txt
