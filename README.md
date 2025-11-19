@@ -1,0 +1,106 @@
+# Shipping Company Management System
+
+FastAPI-based shipping company management system with async PostgreSQL database, handling shipment tracking and seller registration.
+
+## Prerequisites
+
+- Python 3.13+
+- PostgreSQL
+- Redis
+- Poetry
+
+## Setup
+
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd shipping-company
+```
+
+2. **Install dependencies**
+```bash
+poetry install
+```
+
+3. **Activate virtual environment**
+```bash
+poetry shell
+```
+
+4. **Create `.env` file**
+```env
+POSTGRES_SERVER=
+POSTGRES_PORT=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_DB=
+
+JWT_SECRET=
+JWT_ALGORITHM=
+
+REDIS_HOST=
+REDIS_PORT=
+```
+
+5. **Start PostgreSQL and Redis**
+```bash
+# Start Redis (macOS)
+brew services start redis
+
+# Start Redis (Linux)
+sudo systemctl start redis
+
+# Start Redis (manually)
+redis-server
+
+# Verify Redis is running
+redis-cli ping
+# Should return: PONG
+```
+
+6. **Run the application**
+```bash
+uvicorn main:app --reload
+```
+
+The application will start at `http://localhost:8000`
+
+## API Documentation
+
+- Scalar Docs: http://localhost:8000/scalar
+- Swagger: http://localhost:8000/docs
+
+## Development Commands
+
+**Run the application:**
+```bash
+uvicorn main:app --reload
+```
+
+**Format code:**
+```bash
+black .
+```
+
+**Install dependencies:**
+```bash
+poetry install
+```
+
+**Redis commands:**
+```bash
+# Check Redis status
+redis-cli ping
+
+# Connect to Redis CLI
+redis-cli
+
+# Stop Redis (macOS)
+brew services stop redis
+
+# Stop Redis (Linux)
+sudo systemctl stop redis
+
+# Flush all Redis data (use with caution)
+redis-cli FLUSHALL
+```
