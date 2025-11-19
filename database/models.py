@@ -1,8 +1,11 @@
 from datetime import datetime, timezone
 from enum import Enum
+from typing import List
+from uuid import UUID, uuid4
 
 from pydantic import EmailStr
-from sqlmodel import Field, SQLModel
+from sqlalchemy.dialects import postgresql
+from sqlmodel import Field, SQLModel, Relationship, Column
 
 
 # enum
@@ -16,17 +19,42 @@ class ShipmentStatus(str, Enum):
 class Shipment(SQLModel, table=True):
     __tablename__ = "shipment"
 
-    id: int = Field(default=None, primary_key=True)
+    id: UUID = Field(
+        default_factory=uuid4,
+        sa_column=Column(
+            postgresql.UUID(as_uuid=True), default=uuid4, primary_key=True
+        ),
+    )
     content: str
     weight: float = Field(default=0.0, le=25)
     destination: int
     status: ShipmentStatus
     estimated_delivery: datetime
 
+    seller_id: UUID = Field(foreign_key="seller.id")
+    seller: "Seller" = Relationship(
+        back_populates="shipments",
+        sa_relationship={
+            "lazy": "selectin",
+        },
+    )
+
 
 class Seller(SQLModel, table=True):
     __tablename__ = "seller"
-    id: int = Field(default=None, primary_key=True)
+    id: UUID = Field(
+        default_factory=uuid4,
+        sa_column=Column(
+            postgresql.UUID(as_uuid=True), default=uuid4, primary_key=True
+        ),
+    )
     name: str
     email: EmailStr
     password_hash: str
+
+    shipments: List[Shipment] = Relationship(
+        back_populates="seller",
+        sa_relationship={
+            "lazy": "selectin",
+        },
+    )

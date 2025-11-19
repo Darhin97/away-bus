@@ -2,9 +2,10 @@
 from datetime import datetime
 from enum import Enum
 from random import randint
+from uuid import UUID
 
 from pydantic import BaseModel, Field
-from database.models import ShipmentStatus
+from database.models import ShipmentStatus, Seller
 
 
 def random_destination():
@@ -32,8 +33,10 @@ class ShipmentUpdate(BaseModel):
 
 
 class ShipmentRead(BaseShipment):
+    id: UUID
     status: ShipmentStatus
     estimated_delivery: datetime
+    seller: Seller
 
 
 class ShipmentCreate(BaseShipment):

@@ -1,6 +1,8 @@
+from uuid import UUID
+
 from fastapi import APIRouter, HTTPException, status
 
-from api.dependencies import ShipmentServiceDep
+from api.dependencies import ShipmentServiceDep, SellerDep
 from api.schemas.schema import ShipmentRead, ShipmentCreate, ShipmentUpdate
 from database.models import Shipment
 
@@ -12,7 +14,7 @@ router = APIRouter(
 
 
 @router.get("/", response_model=ShipmentRead)
-async def get_shipment(id: int, service: ShipmentServiceDep):
+async def get_shipment(id: UUID, _: SellerDep, service: ShipmentServiceDep):
     shipment = await service.get(id)
 
     if shipment is None:
@@ -24,9 +26,11 @@ async def get_shipment(id: int, service: ShipmentServiceDep):
 
 @router.post("/")
 async def submit_shipment(
-    body: ShipmentCreate, service: ShipmentServiceDep
+    seller: SellerDep,
+    body: ShipmentCreate,
+    service: ShipmentServiceDep,
 ) -> Shipment:
-    return await service.add(body)
+    return await service.add(body, seller)
 
 
 # enum check

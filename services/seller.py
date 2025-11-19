@@ -20,7 +20,7 @@ class SellerService:
     async def add(self, credentials: SellerCreate) -> Seller:
         seller = Seller(
             **credentials.model_dump(exclude=["password"]),
-            password_hash=hash_password(credentials.password)
+            password_hash=hash_password(credentials.password),
         )
         self.session.add(seller)
         await self.session.commit()
@@ -44,7 +44,7 @@ class SellerService:
         payload = {
             "user": {
                 "name": seller.name,
-                "email": seller.email,
+                "id": str(seller.id),
             }
         }
         token = create_token(payload)
