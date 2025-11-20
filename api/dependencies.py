@@ -4,8 +4,8 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.security import oauth_scheme
-from database.models import Seller
+from core.security import oauth_scheme_seller, oauth_scheme_partner
+from database.models import Seller, DeliveryPartner
 from database.redis import is_jti_blacklisted
 from database.session import get_session
 from services.seller import SellerService
@@ -27,7 +27,7 @@ def get_seller_service(session: sessionDep):
 
 
 # access token data dep
-async def get_access_token(token: Annotated[str, Depends(oauth_scheme)]) -> dict:
+async def _get_access_token(token: str) -> dict:
     payload = verify_token(token)
 
     blacklist = await is_jti_blacklisted(payload["jti"])
@@ -41,9 +41,22 @@ async def get_access_token(token: Annotated[str, Depends(oauth_scheme)]) -> dict
     return payload
 
 
+# seller access token
+async def get_seller_access_token(token: Annotated[str, Depends(oauth_scheme_seller)]):
+    return await _get_access_token(token)
+
+
+# seller access token
+async def get_partner_access_token(
+    token: Annotated[str, Depends(oauth_scheme_partner)],
+):
+    return await _get_access_token(token)
+
+
 # logged In Seller
-async def get_current_user(
-    token_data: Annotated[dict, Depends(get_access_token)], session: sessionDep
+async def get_current_seller(
+    token_data: Annotated[dict, Depends(get_seller_access_token)],
+    session: sessionDep,
 ):
     seller = await session.get(Seller, UUID(token_data["user"]["id"]))
     if seller is None:
@@ -54,8 +67,25 @@ async def get_current_user(
     return seller
 
 
+# logged In partner
+async def get_current_partner(
+    token_data: Annotated[dict, Depends(get_partner_access_token)],
+    session: sessionDep,
+):
+    partner = await session.get(DeliveryPartner, UUID(token_data["user"]["id"]))
+    if partner is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Delivery Partner not found"
+        )
+
+    return partner
+
+
 # Seller Dep
-SellerDep = Annotated[Seller, Depends(get_current_user)]
+SellerDep = Annotated[Seller, Depends(get_current_seller)]
+
+# Delivery Partner Dep
+DeliveryPartnerDep = Annotated[DeliveryPartner, Depends(get_current_partner)]
 
 
 # shipment service dep Annotation

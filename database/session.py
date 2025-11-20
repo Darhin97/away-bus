@@ -16,7 +16,7 @@ engine = create_async_engine(url=db_settings.POSTGRES_URL, echo=True)
 async def create_db_tables():
     async with engine.begin() as conn:
         # creating tables for db
-        from database.models import Shipment
+        from database.models import Shipment, Seller
 
         await conn.run_sync(SQLModel.metadata.create_all)
 

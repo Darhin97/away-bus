@@ -5,7 +5,8 @@ from fastapi.security import OAuth2PasswordBearer  # , HTTPBearer
 
 # from utils.jwt_auth import verify_token
 
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="/seller/login")
+oauth_scheme_seller = OAuth2PasswordBearer(tokenUrl="/seller/login")
+oauth_scheme_partner = OAuth2PasswordBearer(tokenUrl="/partner/login")
 
 
 # # manual implementation of bearer token -> when not using oauth@ password bearer

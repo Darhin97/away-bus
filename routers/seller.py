@@ -1,15 +1,13 @@
 from typing import Annotated
 
-import jwt
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from api.dependencies import SellerServiceDep, sessionDep, get_access_token
+from api.dependencies import SellerServiceDep, get_seller_access_token
 from api.schemas.seller_schema import SellerCreate, SellerRead
-from core.security import oauth_scheme
-from database.models import Seller
+
 from database.redis import add_jti_to_blacklist
-from utils.jwt_auth import verify_token
+
 
 router = APIRouter(
     prefix="/seller",
@@ -37,7 +35,7 @@ async def login_seller(
 
 
 @router.get("/logout")
-async def logout_seller(token_data: Annotated[dict, Depends(get_access_token)]):
+async def logout_seller(token_data: Annotated[dict, Depends(get_seller_access_token)]):
     await add_jti_to_blacklist(token_data["jti"], token_data["exp"])
     return {
         "detail": "Successfully logged out",

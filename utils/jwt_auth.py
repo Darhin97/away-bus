@@ -12,6 +12,7 @@ ALGORITHM = security_settings.JWT_ALGORITHM
 SECRET = security_settings.JWT_SECRET
 
 
+# generate access token
 def create_token(
     data: dict[str, dict[str, Any]], expiry: timedelta = timedelta(hours=24)
 ) -> str:
