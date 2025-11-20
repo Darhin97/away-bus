@@ -10,7 +10,7 @@ class SellerService(UserService):
         super().__init__(Seller, session)
 
     async def add(self, seller_create: SellerCreate) -> Seller:
-        return await self._add_user(**seller_create.model_dump())
+        return await self._add_user(seller_create.model_dump())
 
     # login is same as token
     async def login(self, email, password) -> str:

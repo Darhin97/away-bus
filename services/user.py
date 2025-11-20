@@ -10,9 +10,8 @@ from utils.jwt_auth import create_token
 
 class UserService(BaseService):
     def __init__(self, model: User, session: AsyncSession):
-        # get DB session to perform database operation
-        self.session = session
         self.model = model
+        self.session = session
 
     async def _get_by_email(self, email) -> User | None:
         return await self.session.scalar(

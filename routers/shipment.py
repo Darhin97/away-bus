@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
 
-from api.dependencies import ShipmentServiceDep, SellerDep
+from api.dependencies import ShipmentServiceDep, SellerDep, DeliveryPartnerDep
 from api.schemas.schema import ShipmentRead, ShipmentCreate, ShipmentUpdate
 from database.models import Shipment
 
@@ -35,8 +35,11 @@ async def submit_shipment(
 
 # enum check
 @router.patch("/")
-async def patch_shipment(
-    id: int, body: ShipmentUpdate, service: ShipmentServiceDep
+async def update_shipment(
+    id: UUID,
+    body: ShipmentUpdate,
+    service: ShipmentServiceDep,
+    partner: DeliveryPartnerDep,
 ) -> Shipment:
     update = body.model_dump(exclude_none=True)
 
