@@ -1,12 +1,12 @@
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class BaseDeliveryPartner(BaseModel):
     name: str
     email: EmailStr
-    serviceable_zip_codes: list[int]
+    serviceable_zip_codes: list[int] | None = None
     max_handling_capacity: int
 
 
@@ -15,8 +15,8 @@ class DeliveryPartnerRead(BaseDeliveryPartner):
 
 
 class DeliveryPartnerUpdate(BaseModel):
-    serviceable_zip_codes: list[int]
-    max_handling_capacity: int
+    serviceable_zip_codes: list[int] | None = Field(default=None)
+    max_handling_capacity: int | None = Field(default=None)
 
 
 class DeliveryPartnerCreate(BaseDeliveryPartner):

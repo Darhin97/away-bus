@@ -54,6 +54,6 @@ async def update_shipment(
 
 
 @router.delete("/")
-async def delete_shipment(id: int, service: ShipmentServiceDep) -> dict[str, str]:
+async def delete_shipment(id: UUID, service: ShipmentServiceDep) -> dict[str, str]:
     await service.delete(id)
     return {"detail": f"Shipment #{id} deleted"}

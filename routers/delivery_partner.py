@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from api.dependencies import (
@@ -14,8 +14,8 @@ from api.schemas.delivery_partner import (
     DeliveryPartnerUpdate,
 )
 
+from database.models import DeliveryPartner
 from database.redis import add_jti_to_blacklist
-from services.delivery_partner import DeliveryPartnerService
 
 router = APIRouter(
     prefix="/partner",
@@ -51,7 +51,27 @@ async def update_delivery_partner(
     partner: DeliveryPartnerDep,
     service: DeliveryPartnerServiceDep,
 ):
-    return await service.update(partner.sqlmodel_update(partner_update))
+    update = partner_update.model_dump(exclude_unset=True)
+
+    if not update:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="No data provided to update"
+        )
+
+    # Fetch the partner fresh in the service's session to avoid session conflicts
+    partner_from_service_session = await service.session.get(DeliveryPartner, partner.id)
+
+    if not partner_from_service_session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Delivery Partner not found"
+        )
+
+    # Update only the fields that were explicitly provided
+    for key, value in update.items():
+        setattr(partner_from_service_session, key, value)
+
+    return await service.update(partner_from_service_session)
 
 
 @router.get("/logout")

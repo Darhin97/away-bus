@@ -24,3 +24,4 @@ class BaseService:
 
     async def _delete(self, entity: SQLModel):
         await self.session.delete(entity)
+        await self.session.commit()
