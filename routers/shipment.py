@@ -21,6 +21,7 @@ async def get_shipment(id: UUID, _: SellerDep, service: ShipmentServiceDep):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Given id does not exist"
         )
+
     return shipment
 
 
@@ -34,7 +35,7 @@ async def submit_shipment(
 
 
 # enum check
-@router.patch("/")
+@router.patch("/", response_model=ShipmentRead)
 async def update_shipment(
     id: UUID,
     body: ShipmentUpdate,
@@ -48,7 +49,7 @@ async def update_shipment(
             status_code=status.HTTP_400_BAD_REQUEST, detail="No data provided to update"
         )
 
-    shipment = await service.update(update, id)
+    shipment = await service.update(update, id, partner)
 
     return shipment
 

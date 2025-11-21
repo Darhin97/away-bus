@@ -29,8 +29,14 @@ class Shipment(SQLModel, table=True):
     content: str
     weight: float = Field(default=0.0, le=25)
     destination: int
-    status: ShipmentStatus
     estimated_delivery: datetime
+    timeline: list["ShipmentEvent"] = Relationship(
+        back_populates="shipment",
+        sa_relationship={
+            "lazy": "selectin",
+        },
+    )
+
     created_at: datetime = Field(
         sa_column=Column(postgresql.TIMESTAMP, default=datetime.now)
     )
@@ -46,6 +52,36 @@ class Shipment(SQLModel, table=True):
     delivery_partner_id: UUID = Field(foreign_key="delivery_partner.id")
     delivery_partner: "DeliveryPartner" = Relationship(
         back_populates="shipments",
+        sa_relationship={
+            "lazy": "selectin",
+        },
+    )
+
+    # Removed status property - it should be computed from timeline in the response schema
+    # def status(self):
+    #     return self.timeline[-1].status if self.timeline and len(self.timeline) > 0 else None
+
+
+#     shipment event model
+class ShipmentEvent(SQLModel, table=True):
+    __tablename__ = "shipment_event"
+    id: UUID = Field(
+        default_factory=uuid4,
+        sa_column=Column(
+            postgresql.UUID(as_uuid=True), default=uuid4, primary_key=True
+        ),
+    )
+    created_at: datetime = Field(
+        sa_column=Column(postgresql.TIMESTAMP, default=datetime.now)
+    )
+    location: int
+    status: ShipmentStatus
+    description: str | None = Field(default=None)
+
+    # relationship
+    shipment_id: UUID = Field(foreign_key="shipment.id")
+    shipment: Shipment = Relationship(
+        back_populates="timeline",
         sa_relationship={
             "lazy": "selectin",
         },
@@ -67,6 +103,9 @@ class Seller(User, table=True):
             postgresql.UUID(as_uuid=True), default=uuid4, primary_key=True
         ),
     )
+    address: str | None = Field(default=None)
+    zip_code: int | None = Field(default=None)
+
     created_at: datetime = Field(
         sa_column=Column(postgresql.TIMESTAMP, default=datetime.now)
     )

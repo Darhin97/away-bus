@@ -58,7 +58,12 @@ redis-cli ping
 # Should return: PONG
 ```
 
-6. **Run the application**
+6. **Run database migrations**
+```bash
+alembic upgrade head
+```
+
+7. **Run the application**
 ```bash
 uvicorn main:app --reload
 ```
@@ -85,6 +90,36 @@ black .
 **Install dependencies:**
 ```bash
 poetry install
+```
+
+**Database migrations (Alembic):**
+
+Alembic is already configured for async PostgreSQL migrations.
+
+```bash
+# Create a new migration
+alembic revision --autogenerate -m "migration message"
+
+# Apply all pending migrations
+alembic upgrade head
+
+# Downgrade one revision
+alembic downgrade -1
+
+# Show current revision
+alembic current
+
+# Show migration history
+alembic history
+
+# Downgrade to a specific revision
+alembic downgrade <revision_id>
+
+# Upgrade to a specific revision
+alembic upgrade <revision_id>
+
+# Show SQL without executing
+alembic upgrade head --sql
 ```
 
 **Redis commands:**

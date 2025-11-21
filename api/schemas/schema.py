@@ -1,11 +1,10 @@
 # pydantic validation
 from datetime import datetime
-from enum import Enum
 from random import randint
 from uuid import UUID
 
-from pydantic import BaseModel, Field
-from database.models import ShipmentStatus, Seller
+from pydantic import BaseModel, EmailStr, Field, computed_field
+from database.models import ShipmentStatus
 
 
 def random_destination():
@@ -28,15 +27,44 @@ class BaseShipment(BaseModel):
 
 
 class ShipmentUpdate(BaseModel):
+    location: int | None = Field(default=None)
+    description: str | None = Field(default=None)
     status: ShipmentStatus | None = Field(default=None)
     estimated_delivery: datetime | None = Field(default=None)
 
 
-class ShipmentRead(BaseShipment):
+# Pydantic schemas for nested data
+class ShipmentEventRead(BaseModel):
+    model_config = {"from_attributes": True}
+
     id: UUID
+    created_at: datetime
+    location: int
     status: ShipmentStatus
+    description: str | None = None
+
+
+class SellerRead(BaseModel):
+    model_config = {"from_attributes": True}
+
+    id: UUID
+    name: str
+    email: EmailStr
+
+
+class ShipmentRead(BaseShipment):
+    model_config = {"from_attributes": True}
+
+    id: UUID
+    timeline: list[ShipmentEventRead]
     estimated_delivery: datetime
-    seller: Seller
+    seller: SellerRead
+
+    @computed_field
+    @property
+    def status(self) -> ShipmentStatus | None:
+        """Get the latest status from timeline"""
+        return self.timeline[-1].status if self.timeline else None
 
 
 class ShipmentCreate(BaseShipment):

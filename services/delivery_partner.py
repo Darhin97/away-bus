@@ -1,10 +1,11 @@
 from fastapi import HTTPException, status
-from sqlalchemy import Sequence, func
+from sqlalchemy import Sequence, func, and_, text
+from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.expression import any_
 from sqlmodel import select
 
 from api.schemas.delivery_partner import DeliveryPartnerCreate, DeliveryPartnerUpdate
-from database.models import DeliveryPartner, Shipment, ShipmentStatus
+from database.models import DeliveryPartner, Shipment, ShipmentStatus, ShipmentEvent
 from services.user import UserService
 
 
@@ -27,15 +28,32 @@ class DeliveryPartnerService(UserService):
 
         # Find partner with available capacity
         for partner in eligible_delivery_partners:
-            # Count active shipments for this partner (not delivered)
-            active_count_result = await self.session.execute(
-                select(func.count(Shipment.id))
-                .where(
-                    Shipment.delivery_partner_id == partner.id,
-                    Shipment.status != ShipmentStatus.delivered
+            # Count active shipments using a raw SQL approach with window functions
+            # This gets the latest event for each shipment and counts non-delivered ones
+            query = """
+                WITH latest_events AS (
+                    SELECT DISTINCT ON (se.shipment_id)
+                        se.shipment_id,
+                        se.status
+                    FROM shipment_event se
+                    WHERE se.shipment_id IN (
+                        SELECT s.id
+                        FROM shipment s
+                        WHERE s.delivery_partner_id = :partner_id
+                    )
+                    ORDER BY se.shipment_id, se.created_at DESC
                 )
+                SELECT COUNT(*)
+                FROM latest_events
+                WHERE status != :delivered_status
+            """
+
+            result = await self.session.execute(
+                text(query),
+                {"partner_id": partner.id, "delivered_status": ShipmentStatus.delivered.value}
             )
-            active_shipments_count = active_count_result.scalar() or 0
+            active_shipments_count = result.scalar() or 0
+
             current_capacity = partner.max_handling_capacity - active_shipments_count
 
             if current_capacity > 0:

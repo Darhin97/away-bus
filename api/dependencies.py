@@ -11,6 +11,7 @@ from database.session import get_session
 from services.delivery_partner import DeliveryPartnerService
 from services.seller import SellerService
 from services.shipment import ShipmentService
+from services.shipment_event import ShipmentEventService
 from utils.jwt_auth import verify_token
 
 # async database session dep annotation
@@ -19,7 +20,9 @@ sessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 # Shipment service dep
 def get_shipment_service(session: sessionDep):
-    return ShipmentService(session, DeliveryPartnerService(session))
+    return ShipmentService(
+        session, DeliveryPartnerService(session), ShipmentEventService(session)
+    )
 
 
 # seller service dep
