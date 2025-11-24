@@ -34,6 +34,11 @@ class NotificationSettings(BaseSettings):
     USE_CREDENTIALS: bool = True
     VALIDATE_CERTS: bool = True
 
+    MAIL_TRAP_KEY: str
+    MAIL_TRAP_HOST: str
+    MAILTRAP_USE_SANDBOX: bool = True  # true/false toggle
+    MAILTRAP_INBOX_ID: int = 4206551
+
     model_config = SettingsConfigDict(
         env_file=".env", env_ignore_empty=True, extra="ignore"
     )

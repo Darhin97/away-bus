@@ -24,6 +24,7 @@ dependencies = [
     "redis[hiredis] (>=7.1.0,<8.0.0)",
     "alembic (>=1.17.2,<2.0.0)",
     "fastapi-mail (>=1.5.8,<2.0.0)",
+    "mailtrap (>=2.3.0,<3.0.0)",
 
 ]
 
