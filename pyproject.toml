@@ -6,7 +6,7 @@ authors = [
     {name = "Derrick Ankrah",email = "darhin97@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<4.0"
 dependencies = [
     "fastapi (>=0.121.2,<0.122.0)",
     "uvicorn (>=0.38.0,<0.39.0)",
@@ -23,6 +23,7 @@ dependencies = [
     "python-multipart (>=0.0.20,<0.0.21)",
     "redis[hiredis] (>=7.1.0,<8.0.0)",
     "alembic (>=1.17.2,<2.0.0)",
+    "fastapi-mail (>=1.5.8,<2.0.0)",
 
 ]
 

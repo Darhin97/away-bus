@@ -7,7 +7,13 @@ from sqlalchemy.orm import selectinload, joinedload
 from sqlmodel import select
 
 from api.schemas.schema import ShipmentCreate, ShipmentUpdate
-from database.models import Shipment, ShipmentStatus, Seller, DeliveryPartner, ShipmentEvent
+from database.models import (
+    Shipment,
+    ShipmentStatus,
+    Seller,
+    DeliveryPartner,
+    ShipmentEvent,
+)
 from services.base import BaseService
 from services.delivery_partner import DeliveryPartnerService
 from services.shipment_event import ShipmentEventService
@@ -47,17 +53,19 @@ class ShipmentService(BaseService):
         partner = await self.session.get(DeliveryPartner, partner_id)
 
         # Load timeline events
-        timeline_stmt = select(ShipmentEvent).where(
-            ShipmentEvent.shipment_id == id
-        ).order_by(ShipmentEvent.created_at)
+        timeline_stmt = (
+            select(ShipmentEvent)
+            .where(ShipmentEvent.shipment_id == id)
+            .order_by(ShipmentEvent.created_at)
+        )
         timeline_result = await self.session.execute(timeline_stmt)
         timeline = list(timeline_result.scalars().all())
 
         # Manually set the loaded relationships on the shipment object
         # Use object.__setattr__ to bypass the Relationship descriptor
-        object.__setattr__(shipment, 'seller', seller)
-        object.__setattr__(shipment, 'delivery_partner', partner)
-        object.__setattr__(shipment, 'timeline', timeline)
+        object.__setattr__(shipment, "seller", seller)
+        object.__setattr__(shipment, "delivery_partner", partner)
+        object.__setattr__(shipment, "timeline", timeline)
 
         return shipment
 
@@ -122,6 +130,23 @@ class ShipmentService(BaseService):
         # Reload the shipment to get the updated timeline
         updated_shipment = await self.get(id)
         return updated_shipment
+
+    # cancel shipment
+    async def cancel(self, id: UUID, seller: Seller) -> Shipment:
+        # validate seller
+        shipment = await self.get(id)
+
+        if shipment.seller_id != seller.id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized"
+            )
+
+        event = await self.event_service.add(
+            shipment=shipment, status=ShipmentStatus.cancelled
+        )
+
+        shipment.timeline.append(event)
+        return shipment
 
     async def delete(self, id: UUID) -> None:
         shipment = await self.get(id)

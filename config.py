@@ -22,6 +22,23 @@ class DatabaseSettings(BaseSettings):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
 
+class NotificationSettings(BaseSettings):
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_FROM_NAME: str
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
+    USE_CREDENTIALS: bool = True
+    VALIDATE_CERTS: bool = True
+
+    model_config = SettingsConfigDict(
+        env_file=".env", env_ignore_empty=True, extra="ignore"
+    )
+
+
 class SecuritySettings(BaseSettings):
     JWT_SECRET: str
     JWT_ALGORITHM: str
@@ -33,3 +50,4 @@ class SecuritySettings(BaseSettings):
 
 db_settings = DatabaseSettings()
 security_settings = SecuritySettings()
+notification_settings = NotificationSettings()
