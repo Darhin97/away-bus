@@ -1,6 +1,6 @@
-import asyncio
+# import asyncio
 
-from fastapi_mail import FastMail, ConnectionConfig, MessageSchema, MessageType
+# from fastapi_mail import FastMail, ConnectionConfig, MessageSchema, MessageType
 
 from config import notification_settings
 

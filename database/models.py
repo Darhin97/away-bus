@@ -31,6 +31,9 @@ class Shipment(SQLModel, table=True):
     weight: float = Field(default=0.0, le=25)
     destination: int
     estimated_delivery: datetime
+    client_contact_email: EmailStr
+    client_contact_phone: int | None
+
     timeline: list["ShipmentEvent"] = Relationship(
         back_populates="shipment",
         sa_relationship={

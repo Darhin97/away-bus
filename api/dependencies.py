@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.security import oauth_scheme_seller, oauth_scheme_partner
@@ -19,9 +19,9 @@ sessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
 # Shipment service dep
-def get_shipment_service(session: sessionDep):
+def get_shipment_service(session: sessionDep, tasks: BackgroundTasks):
     return ShipmentService(
-        session, DeliveryPartnerService(session), ShipmentEventService(session)
+        session, DeliveryPartnerService(session), ShipmentEventService(session, tasks)
     )
 
 

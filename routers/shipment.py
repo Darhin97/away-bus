@@ -34,7 +34,6 @@ async def submit_shipment(
     return await service.add(body, seller)
 
 
-# enum check
 @router.patch("/", response_model=ShipmentRead)
 async def update_shipment(
     id: UUID,
@@ -42,6 +41,21 @@ async def update_shipment(
     service: ShipmentServiceDep,
     partner: DeliveryPartnerDep,
 ) -> Shipment:
+    """
+    Update a shipment's status, location, or estimated delivery.
+
+    **Authentication Required**: You must be logged in as a delivery partner.
+    - Use the `/partner/login` endpoint to get an access token
+    - Only the delivery partner assigned to this shipment can update it
+
+    **Updatable Fields**:
+    - `status`: Update shipment status (in_transit, out_for_delivery, delivered, etc.)
+    - `location`: Update current location (zip code)
+    - `estimated_delivery`: Update estimated delivery date/time
+    - `description`: Custom description for the shipment event
+
+    **Authorization**: Returns 401 Unauthorized if the logged-in partner is not assigned to this shipment.
+    """
     update = body.model_dump(exclude_none=True)
 
     if not update:
