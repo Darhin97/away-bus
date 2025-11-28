@@ -148,7 +148,8 @@ class DeliveryPartner(User, table=True):
         return [
             shipment
             for shipment in self.shipments
-            if shipment.status != ShipmentStatus.delivered
+            if shipment.timeline
+            and shipment.timeline[-1].status != ShipmentStatus.delivered
         ]
 
     @property

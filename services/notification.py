@@ -49,12 +49,11 @@ class NotificationService:
         env = Environment(loader=FileSystemLoader("templates"))
         template = env.get_template(template_name)
 
-        print("CONTEXT", context)
-
         # Render with variables
         html_content = template.render(
-            seller=context["seller"],
-            partner=context["partner"],
+            seller=context["seller"] or None,
+            partner=context["partner"] or None,
+            id=context["id"] or None,
         )
 
         mail = mt.Mail(

@@ -1,6 +1,8 @@
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import HTMLResponse
+from jinja2 import Environment, FileSystemLoader
 
 from api.dependencies import ShipmentServiceDep, SellerDep, DeliveryPartnerDep
 from api.schemas.schema import ShipmentRead, ShipmentCreate, ShipmentUpdate
@@ -12,9 +14,12 @@ router = APIRouter(
     tags=["shipment"],
 )
 
+# Initialize Jinja2 environment once at module level
+jinja_env = Environment(loader=FileSystemLoader("templates"))
+
 
 @router.get("/", response_model=ShipmentRead)
-async def get_shipment(id: UUID, _: SellerDep, service: ShipmentServiceDep):
+async def get_shipment(id: UUID, service: ShipmentServiceDep):
     shipment = await service.get(id)
 
     if shipment is None:
@@ -23,6 +28,31 @@ async def get_shipment(id: UUID, _: SellerDep, service: ShipmentServiceDep):
         )
 
     return shipment
+
+
+# tracking for a shipment
+@router.get("/track", response_class=HTMLResponse)
+async def track_shipment(id: UUID, service: ShipmentServiceDep):
+    template = jinja_env.get_template("track.html")
+
+    # check for shipment with given id
+    shipment = await service.get(id)
+
+    if shipment is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Given id does not exist"
+        )
+
+    # Compute status from timeline (latest event)
+    current_status = (
+        shipment.timeline[-1].status.value if shipment.timeline else "unknown"
+    )
+    context = shipment.model_dump()
+    context["current_status"] = current_status
+    context["partner"] = shipment.delivery_partner.name
+    context["timeline"] = shipment.timeline
+
+    return HTMLResponse(content=template.render(context))
 
 
 @router.post("/")

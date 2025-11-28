@@ -7,7 +7,6 @@ from database.models import (
 )
 from services.base import BaseService
 from services.notification import NotificationService
-from sqlmodel import select
 
 
 class ShipmentEventService(BaseService):
@@ -86,6 +85,7 @@ class ShipmentEventService(BaseService):
             case ShipmentStatus.placed:
                 subject = "Your Order is Shipped 🚛"
                 context["seller"] = seller.name
+                context["id"] = shipment.id
                 context["partner"] = delivery_partner.name
                 template_name = "mail_placed.html"
 
@@ -95,7 +95,7 @@ class ShipmentEventService(BaseService):
 
             case ShipmentStatus.delivered:
                 subject = "Your Order is Delivered ✅"
-                context["seller"] = shipment.seller.name
+                context["seller"] = seller.name
                 template_name = "mail_delivered.html"
 
             case ShipmentStatus.cancelled:
