@@ -1,0 +1,93 @@
+# --------------------------------------
+# Python
+# --------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.so
+
+# Environment
+venv/
+env/
+.venv/
+
+CLAUDE.md
+
+# Virtualenv metadata
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --------------------------------------
+# FastAPI / Uvicorn / Logs
+# --------------------------------------
+*.log
+logs/
+*.pid
+
+# --------------------------------------
+# IDE / Editor files
+# --------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --------------------------------------
+# Byte-compiled / mypy
+# --------------------------------------
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+pyrightconfig.json
+
+# --------------------------------------
+# Testing
+# --------------------------------------
+.coverage
+htmlcov/
+.pytest_cache/
+
+# --------------------------------------
+# Caches / Build
+# --------------------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --------------------------------------
+# dotenv / secrets
+# --------------------------------------
+.env
+.env.*
+!.env.example
+
+# --------------------------------------
+# SQLite / Data files
+# --------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+
+# --------------------------------------
+# Docker
+# --------------------------------------
+docker-data/
+*.tar
+
+# --------------------------------------
+# Node (if using for frontend in same repo)
+# --------------------------------------
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# --------------------------------------
+# OS/System files
+# --------------------------------------
+.DS_Store
+Thumbs.db
