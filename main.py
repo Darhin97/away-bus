@@ -44,6 +44,12 @@ app.include_router(master_router)
 add_exception_handlers(app)
 
 
+# server running status
+@app.get("/")
+async def root():
+    return {"message": "Server is running...."}
+
+
 # @app.get("/mail")
 # async def send_test_mail(tasks: BackgroundTasks):
 #     tasks.add_task(
