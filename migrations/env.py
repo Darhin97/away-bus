@@ -16,7 +16,11 @@ from database.models import Shipment, Seller, DeliveryPartner
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", db_settings.POSTGRES_URL)
+config.set_main_option(
+    "sqlalchemy.url",
+    # db_settings.POSTGRES_URL
+    "postgresql+asyncpg://postgres:admin@localhost:5433/fastship",
+)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

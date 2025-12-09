@@ -1,0 +1,49 @@
+
+services:
+  api:
+    build: .
+    environment:
+      POSTGRES_SERVER: db
+      REDIS_HOST: redis
+    command: ["uvicorn", "main:app",  "--host", "0.0.0.0", "--port", "8000" ]
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: "fastship"
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:8
+    command: ["redis-server", "--appendonly", "yes"]
+
+    volumes:
+      - ./redis_data:/data
+
+  celery:
+    build: .
+    command: ["celery", "-A", "worker.tasks", "worker", "--loglevel=info"]
+    environment:
+      REDIS_HOST: redis
+    depends_on:
+      - redis
+      - db
+
+
+
+

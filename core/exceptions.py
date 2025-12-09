@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request, Response, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status
+from fastapi.responses import JSONResponse
 
 
 class FastShipError(Exception):
@@ -49,9 +50,12 @@ class DeliveryPartnerCapacityExceeded(FastShipError):
     status = status.HTTP_406_NOT_ACCEPTABLE
 
 
-def _get_handler(status: int, detail: str):
-    def handler(request: Request, exception: Exception) -> Response:
-        raise HTTPException(status_code=status, detail=detail)
+def _get_handler(status_code: int, detail: str):
+    def handler(request: Request, exception: Exception) -> JSONResponse:
+        return JSONResponse(
+            status_code=status_code,
+            content={"detail": detail.strip()}
+        )
 
     return handler
 
